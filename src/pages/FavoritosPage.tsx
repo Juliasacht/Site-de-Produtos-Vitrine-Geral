@@ -10,14 +10,22 @@ export default function FavoritosPage() {
 
   useEffect(() => {
     const salvos = localStorage.getItem('favoritos');
-    if (salvos) {
-      const parsed = JSON.parse(salvos);
+    if (!salvos) {
+      setFavoritos(controller.listarFavoritos());
+      return;
+    }
+    try {
+      const parsed: unknown = JSON.parse(salvos);
+      if (!Array.isArray(parsed)) {
+        setFavoritos([]);
+        return;
+      }
       const instancias = parsed.map((p: any) => new Produto(
-        p.id, p.nome, p.marca, p.preco, p.descricao, p.categoria, p.imagem
+        p.id, p.nome, p.marca, p.preco, p.descricao, p.categoria || p.tipo || 'Outros', p.imagem
       ));
       setFavoritos(instancias);
-    } else {
-      setFavoritos(controller.listarFavoritos());
+    } catch {
+      setFavoritos([]);
     }
   }, []);
 

@@ -146,6 +146,8 @@ export default function ProdutosPage() {
         </div>
       </div>
 
+      <p className="aviso-moeda">Preços demonstrativos em dólar americano (USD), conforme informados pelas APIs. Não representam valores convertidos para reais.</p>
+
       <div className="resumo-resultados">
         <span aria-live="polite">
           {carregando ? 'Carregando produtos…' : `${produtosVisiveis.length} ${produtosVisiveis.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`}

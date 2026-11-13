@@ -12,3 +12,5 @@
 .category{text-transform:capitalize;color:#928b95;font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:right;max-width:44%}
 @media(max-width:600px){.favoriteButton{width:38px;height:38px}.details h3{font-size:14px}.price{font-size:15px}.category{display:none}}
 @media(prefers-reduced-motion:reduce){.imageWrap img,.favoriteButton{transition:none}}
+
+.imageFallback{display:grid;place-items:center;text-align:center;color:#88818d;font-size:12px;font-weight:600;padding:18px;min-height:100px}

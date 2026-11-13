@@ -63,3 +63,8 @@ export function filtrarEOrdenar<T extends ItemCatalogo>(
 
   return filtrados;
 }
+
+/** As APIs de demonstração informam valores em dólares americanos. */
+export function formatarPrecoUSD(valor: number): string {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'USD' }).format(valor);
+}
