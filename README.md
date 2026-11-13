@@ -67,5 +67,5 @@ Acesse no navegador o endereço exibido no terminal.
 - Remover arquivos padrão não utilizados do React
 - Substituir o teste inicial por testes reais da aplicação
 - Adicionar prints das telas no README
-- Publicar o projeto no Vercel ou Netlify
+- Revisar e documentar a publicação na Vercel
 - Melhorar responsividade e acessibilidade
