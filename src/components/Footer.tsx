@@ -17,8 +17,16 @@ export default function Footer() {
           </nav>
         </div>
         <div className={styles.bottom}>
-          <span>© {new Date().getFullYear()} Vitrine Geral</span>
-          <span>Projeto demonstrativo de catálogo digital</span>
+          <span className={styles.credit}>
+            © {new Date().getFullYear()} Vitrine Geral · Desenvolvido por{' '}
+            <a href="https://www.linkedin.com/in/juliasacht/" target="_blank" rel="noopener noreferrer">
+              Julia Sacht
+            </a>
+          </span>
+          <nav className={styles.socialLinks} aria-label="Perfis profissionais da desenvolvedora">
+            <a href="https://github.com/Juliasacht" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://www.linkedin.com/in/juliasacht/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </nav>
         </div>
       </div>
     </footer>
