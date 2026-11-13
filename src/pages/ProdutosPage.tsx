@@ -1,102 +1,180 @@
-
-import { useEffect, useState } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useEffect, useMemo, useState } from 'react';
 import CardProduto from '../components/CardProduto';
-import controller from '../controllers/controllerSingleton';
 import { Produto } from '../models/Produto';
+import { filtrarEOrdenar, obterCategorias, rotuloCategoria, type Ordenacao } from '../utils/catalogo';
 import './ProdutosPage.css';
+
+interface ProdutoFakeStore {
+  id: number;
+  title: string;
+  price: number;
+  description?: string;
+  category?: string;
+  image?: string;
+}
+
+interface ProdutoDummyJSON {
+  id: number;
+  title: string;
+  price: number;
+  description?: string;
+  category?: string;
+  thumbnail?: string;
+  images?: string[];
+}
+
+async function solicitarProdutos(url: string, signal: AbortSignal): Promise<unknown> {
+  const resposta = await fetch(url, { signal });
+  if (!resposta.ok) throw new Error('Falha na API: ' + resposta.status);
+  return resposta.json();
+}
 
 export default function ProdutosPage() {
   const [produtos, setProdutos] = useState<Produto[]>([]);
   const [busca, setBusca] = useState('');
   const [categoria, setCategoria] = useState('todos');
+  const [ordenacao, setOrdenacao] = useState<Ordenacao>('relevancia');
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState('');
+  const [tentativa, setTentativa] = useState(0);
 
   useEffect(() => {
-    const carregarProdutos = async () => {
-      try {
-        const [res1, res2] = await Promise.all([
-          fetch("https://fakestoreapi.com/products"),
-          fetch("https://dummyjson.com/products")
-        ]);
+    const controlador = new AbortController();
+    const carregar = async () => {
+      setCarregando(true);
+      setErro('');
 
-        const fakeStore = await res1.json();
-        const dummyJson = await res2.json();
+      const resultados = await Promise.allSettled([
+        solicitarProdutos('https://fakestoreapi.com/products', controlador.signal),
+        solicitarProdutos('https://dummyjson.com/products?limit=100', controlador.signal),
+      ]);
+      if (controlador.signal.aborted) return;
 
-        const lista1 = fakeStore.map((item: any) => (
-          new Produto(
-            Number(item.id),
-            item.title || 'Sem nome',
-            'FakeStore',
-            parseFloat(item.price) || 0,
-            item.description || 'Sem descrição',
-            item.category || 'Outro',
-            item.image || 'https://via.placeholder.com/150'
-          )
-        ));
+      const produtosFake = resultados[0].status === 'fulfilled' && Array.isArray(resultados[0].value)
+        ? resultados[0].value as ProdutoFakeStore[]
+        : [];
+      const respostaDummy = resultados[1].status === 'fulfilled'
+        ? resultados[1].value as { products?: ProdutoDummyJSON[] }
+        : {};
+      const produtosDummy = Array.isArray(respostaDummy?.products) ? respostaDummy.products : [];
 
-        const lista2 = (dummyJson.products || []).map((item: any) => (
-          new Produto(
-            Number(item.id + 1000),
-            item.title || 'Sem nome',
-            'DummyJSON',
-            parseFloat(item.price) || 0,
-            item.description || 'Sem descrição',
-            item.category || 'Outro',
-            (item.thumbnail || item.images?.[0]) || 'https://via.placeholder.com/150'
-          )
-        ));
+      const listaFake = produtosFake.map((item) => new Produto(
+        Number(item.id),
+        item.title || 'Produto sem nome',
+        'FakeStore API',
+        Number(item.price) || 0,
+        item.description || '',
+        item.category || 'Outros',
+        item.image || '',
+      ));
 
-        setProdutos([...lista1, ...lista2]);
-      } catch (error) {
-        toast.error("Erro ao carregar produtos.");
+      const listaDummy = produtosDummy.map((item) => new Produto(
+        Number(item.id) + 1000,
+        item.title || 'Produto sem nome',
+        'DummyJSON',
+        Number(item.price) || 0,
+        item.description || '',
+        item.category || 'Outros',
+        item.thumbnail || item.images?.[0] || '',
+      ));
+
+      const carregados = [...listaFake, ...listaDummy];
+      setProdutos(carregados);
+
+      if (carregados.length === 0) {
+        setErro('Não foi possível carregar o catálogo. Verifique a conexão e tente novamente.');
+      } else if (resultados.some((resultado) => resultado.status === 'rejected')) {
+        setErro('Parte do catálogo está indisponível no momento. Os produtos disponíveis continuam visíveis.');
       }
+      setCarregando(false);
     };
 
-    carregarProdutos();
-  }, []);
+    void carregar();
+    return () => controlador.abort();
+  }, [tentativa]);
 
-  const produtosFiltrados = produtos.filter((p) =>
-    p.nome.toLowerCase().includes(busca.toLowerCase()) &&
-    (categoria === 'todos' || p.categoria?.toLowerCase().includes(categoria.toLowerCase()))
+  const categorias = useMemo(() => obterCategorias(produtos), [produtos]);
+  const produtosVisiveis = useMemo(
+    () => filtrarEOrdenar(produtos, busca, categoria, ordenacao),
+    [produtos, busca, categoria, ordenacao],
   );
+
+  const limparFiltros = () => {
+    setBusca('');
+    setCategoria('todos');
+    setOrdenacao('relevancia');
+  };
 
   return (
     <div className="pagina-produtos">
-      <h2>Produtos</h2>
+      <h1 className="titulo-produtos">Explore o catálogo</h1>
+      <p className="subtitulo-produtos">Descubra itens de diferentes categorias e salve seus favoritos.</p>
 
-      <div className="busca-container">
+      <div className="busca-container" role="search" aria-label="Buscar e filtrar produtos">
         <div className="search-wrapper">
-          <span className="lupa">🔍</span>
+          <span className="lupa" aria-hidden="true">⌕</span>
+          <label className="rotulo-filtro" htmlFor="busca-produtos">Buscar produtos</label>
           <input
+            id="busca-produtos"
             className="search-bar"
-            type="text"
-            placeholder="Buscar por nome, tipo ou marca..."
+            type="search"
+            placeholder="Nome, marca ou categoria"
             value={busca}
-            onChange={(e) => setBusca(e.target.value)}
+            onChange={(evento) => setBusca(evento.target.value)}
           />
         </div>
-
-        <select className="filtro-categoria" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
-          <option value="todos">Todas as categorias</option>
-          <option value="beauty">Maquiagem</option>
-          <option value="electronics">Eletrônicos</option>
-          <option value="men's clothing">Moda Masculina</option>
-          <option value="women's clothing">Moda Feminina</option>
-        </select>
+        <div className="campo-filtro">
+          <label className="rotulo-filtro" htmlFor="categoria-produtos">Categoria</label>
+          <select id="categoria-produtos" className="filtro-categoria" value={categoria} onChange={(evento) => setCategoria(evento.target.value)}>
+            <option value="todos">Todas as categorias</option>
+            {categorias.map((valor) => <option key={valor} value={valor}>{rotuloCategoria(valor)}</option>)}
+          </select>
+        </div>
+        <div className="campo-filtro">
+          <label className="rotulo-filtro" htmlFor="ordenacao-produtos">Ordenar por</label>
+          <select
+            id="ordenacao-produtos"
+            className="filtro-categoria"
+            value={ordenacao}
+            onChange={(evento) => setOrdenacao(evento.target.value as Ordenacao)}
+          >
+            <option value="relevancia">Ordem original</option>
+            <option value="nome-asc">Nome (A–Z)</option>
+            <option value="preco-asc">Menor preço</option>
+            <option value="preco-desc">Maior preço</option>
+          </select>
+        </div>
       </div>
 
-      <div className="grid-produtos">
-        {produtosFiltrados.length === 0 ? (
-          <p className="mensagem-vazia">Nenhum produto foi encontrado. 😢</p>
-        ) : (
-          produtosFiltrados.map((produto) => (
-            <CardProduto key={produto.id} produto={produto} />
-          ))
+      <div className="resumo-resultados">
+        <span aria-live="polite">
+          {carregando ? 'Carregando produtos…' : `${produtosVisiveis.length} ${produtosVisiveis.length === 1 ? 'produto encontrado' : 'produtos encontrados'}`}
+        </span>
+        {(busca || categoria !== 'todos' || ordenacao !== 'relevancia') && (
+          <button type="button" className="limpar-filtros" onClick={limparFiltros}>Limpar filtros</button>
         )}
       </div>
 
-      <ToastContainer />
+      {erro && (
+        <div className="aviso-catalogo" role={produtos.length ? 'status' : 'alert'}>
+          <p>{erro}</p>
+          <button type="button" onClick={() => setTentativa((atual) => atual + 1)}>Tentar novamente</button>
+        </div>
+      )}
+
+      <div className="grid-produtos" aria-busy={carregando}>
+        {carregando ? (
+          <div className="estado-catalogo" role="status">Buscando novidades para você…</div>
+        ) : produtosVisiveis.length === 0 && !erro ? (
+          <div className="estado-catalogo">
+            <h2>Nenhum resultado por aqui.</h2>
+            <p>Tente outro termo ou remova os filtros para explorar mais produtos.</p>
+            <button type="button" onClick={limparFiltros}>Ver todos os produtos</button>
+          </div>
+        ) : (
+          produtosVisiveis.map((produto) => <CardProduto key={produto.id} produto={produto} />)
+        )}
+      </div>
     </div>
   );
 }
