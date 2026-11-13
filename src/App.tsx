@@ -7,21 +7,10 @@ import FavoritosPage from './pages/FavoritosPage';
 
 function App() {
   return (
-    <div
-      style={{
-        backgroundImage: "url('/images/bg-home.png')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        width: "100%",
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column"
-      }}
-    >
-      <Router>
+    <Router>
+      <div className="app-shell">
         <Header />
-        <main className="flex-grow">
+        <main className="app-main" id="conteudo">
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/produtos" element={<ProdutosPage />} />
@@ -29,8 +18,8 @@ function App() {
           </Routes>
         </main>
         <Footer />
-      </Router>
-    </div>
+      </div>
+    </Router>
   );
 }
 

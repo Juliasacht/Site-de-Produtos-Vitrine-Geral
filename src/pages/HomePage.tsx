@@ -1,86 +1,115 @@
 import { Link } from 'react-router-dom';
 import styles from './HomePage.module.css';
 
-const categorias = [
-  { nome: 'Moda e estilo', descricao: 'Peças para diferentes momentos.', simbolo: '✦', classe: 'moda' },
-  { nome: 'Tecnologia', descricao: 'Acessórios e novidades para explorar.', simbolo: '⌘', classe: 'tecnologia' },
-  { nome: 'Casa e decoração', descricao: 'Ideias para renovar seus espaços.', simbolo: '⌂', classe: 'casa' },
-  { nome: 'Beleza', descricao: 'Produtos para o seu autocuidado.', simbolo: '✿', classe: 'beleza' },
+const colecoes = [
+  {
+    nome: 'Moda & estilo',
+    descricao: 'Peças para expressar quem você é.',
+    imagem: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=82',
+    alt: 'Peças de roupa e acessórios em uma composição de moda',
+  },
+  {
+    nome: 'Tecnologia',
+    descricao: 'Ideias inteligentes para o dia a dia.',
+    imagem: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=900&q=82',
+    alt: 'Fone de ouvido em destaque sobre fundo amarelo',
+  },
+  {
+    nome: 'Casa & decoração',
+    descricao: 'Detalhes que transformam ambientes.',
+    imagem: 'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=900&q=82',
+    alt: 'Cadeira de design contemporâneo em ambiente minimalista',
+  },
 ];
 
 export default function HomePage() {
   return (
-    <div className={styles.pageWrapper}>
+    <div className={styles.home}>
       <section className={styles.hero} aria-labelledby="titulo-home">
-        <div className={styles.heroContent}>
-          <span className={styles.eyebrow}><span aria-hidden="true">✦</span> Seu espaço de descobertas</span>
-          <h1 id="titulo-home">Tudo o que você gosta, <span>em um só lugar.</span></h1>
-          <p className={styles.description}>
-            Explore produtos de diferentes categorias, encontre novas ideias e salve seus favoritos.
-            Uma vitrine feita para descobrir no seu ritmo.
+        <div className={styles.heroCopy}>
+          <span className={styles.eyebrow}><span aria-hidden="true" className={styles.dot} /> UMA VITRINE DE POSSIBILIDADES</span>
+          <h1 id="titulo-home">Seu próximo favorito está <em>por aqui.</em></h1>
+          <p>
+            Produtos para cada estilo, ideia e momento. Explore diferentes categorias
+            e guarde o que mais combina com você.
           </p>
           <div className={styles.actions}>
-            <Link className={styles.primaryButton} to="/produtos">
-              Explorar produtos <span aria-hidden="true">→</span>
-            </Link>
-            <Link className={styles.secondaryButton} to="/favoritos">
-              Ver meus favoritos
-            </Link>
+            <Link to="/produtos" className={styles.primaryCta}>Explorar produtos <span aria-hidden="true">↗</span></Link>
+            <Link to="/favoritos" className={styles.textCta}>Meus favoritos <span aria-hidden="true">→</span></Link>
           </div>
-          <div className={styles.heroNote}>
-            <span className={styles.noteIcon} aria-hidden="true">♡</span>
-            Descubra, escolha e guarde seus preferidos.
+          <div className={styles.heroFoot}>
+            <span>DESCUBRA</span>
+            <span className={styles.footDivider} />
+            <span>EXPLORE</span>
+            <span className={styles.footDivider} />
+            <span>SALVE</span>
           </div>
         </div>
-
-        <div className={styles.heroVisual} aria-hidden="true">
-          <div className={styles.visualGlow} />
-          <div className={styles.visualFrame}>
-            <div className={styles.visualTop}>
-              <span className={styles.visualDots}><i /><i /><i /></span>
-              <span>Vitrine Geral</span>
-              <span>✧</span>
-            </div>
-            <div className={styles.visualHeadline}>Encontre sua próxima descoberta.</div>
-            <div className={styles.visualGrid}>
-              <div className={styles.visualProduct + ' ' + styles.visualProductLilac}><span>✿</span><small>Beleza</small></div>
-              <div className={styles.visualProduct + ' ' + styles.visualProductPeach}><span>⌘</span><small>Tech</small></div>
-              <div className={styles.visualProduct + ' ' + styles.visualProductCream}><span>⌂</span><small>Casa</small></div>
-            </div>
-            <div className={styles.visualBottom}><span>Uma coleção de possibilidades</span><span>↗</span></div>
+        <div className={styles.heroGallery}>
+          <div className={styles.heroPhoto}>
+            <img
+              src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=85"
+              alt="Relógio de pulso em uma fotografia de produto minimalista"
+              fetchPriority="high"
+            />
+            <span className={styles.photoTag}>DESCOBERTAS DO DIA A DIA</span>
           </div>
-          <span className={styles.floatingStar}>✦</span>
+          <div className={styles.photoCaption}>
+            <span>Pequenos detalhes. Grandes escolhas.</span>
+            <span aria-hidden="true">✳</span>
+          </div>
         </div>
       </section>
 
-      <section className={styles.categoriesSection} aria-labelledby="titulo-categorias">
-        <div className={styles.sectionHeading}>
+      <div className={styles.marquee} aria-label="Categorias disponíveis no catálogo">
+        <span>MODA</span><span aria-hidden="true">✳</span>
+        <span>TECNOLOGIA</span><span aria-hidden="true">✳</span>
+        <span>CASA</span><span aria-hidden="true">✳</span>
+        <span>BELEZA</span><span aria-hidden="true">✳</span>
+        <span>ACESSÓRIOS</span>
+      </div>
+
+      <section className={styles.collections} aria-labelledby="titulo-colecoes">
+        <div className={styles.sectionTop}>
           <div>
-            <span className={styles.sectionLabel}>EXPLORE A VITRINE</span>
-            <h2 id="titulo-categorias">Descubra por categoria</h2>
-            <p>De itens para o dia a dia a novas inspirações.</p>
+            <span className={styles.sectionEyebrow}>ENCONTRE SUA INSPIRAÇÃO</span>
+            <h2 id="titulo-colecoes">Um universo para <em>explorar.</em></h2>
           </div>
-          <Link to="/produtos" className={styles.allProducts}>Ver todos os produtos <span aria-hidden="true">→</span></Link>
+          <Link to="/produtos" className={styles.sectionLink}>Ver catálogo completo <span aria-hidden="true">↗</span></Link>
         </div>
-        <div className={styles.categoryGrid}>
-          {categorias.map(({ nome, descricao, simbolo, classe }) => (
-            <Link key={nome} to="/produtos" className={styles.categoryCard + ' ' + styles[classe]}>
-              <span className={styles.categoryIcon} aria-hidden="true">{simbolo}</span>
-              <strong>{nome}</strong>
-              <span>{descricao}</span>
-              <span className={styles.categoryArrow} aria-hidden="true">↗</span>
-            </Link>
+        <div className={styles.collectionGrid}>
+          {colecoes.map((colecao, indice) => (
+            <article className={styles.collectionCard} key={colecao.nome}>
+              <div className={styles.collectionPhoto}>
+                <img src={colecao.imagem} alt={colecao.alt} loading="lazy" decoding="async" />
+                <span className={styles.collectionNumber}>0{indice + 1}</span>
+              </div>
+              <div className={styles.collectionInfo}>
+                <div>
+                  <h3>{colecao.nome}</h3>
+                  <p>{colecao.descricao}</p>
+                </div>
+                <span className={styles.collectionSymbol} aria-hidden="true">↗</span>
+              </div>
+            </article>
           ))}
         </div>
+        <p className={styles.caption}>Imagens ilustrativas. Confira os produtos disponíveis no catálogo.</p>
       </section>
 
-      <section className={styles.favoritesBanner} aria-labelledby="titulo-favoritos">
-        <div>
-          <span className={styles.sectionLabel}>SEUS ESCOLHIDOS</span>
-          <h2 id="titulo-favoritos">Gostou? Salve para depois.</h2>
-          <p>Marque os produtos que chamarem sua atenção e consulte sua lista de favoritos quando quiser.</p>
+      <section className={styles.favoriteFeature} aria-labelledby="titulo-favoritos">
+        <div className={styles.featureDecoration} aria-hidden="true">♡</div>
+        <div className={styles.featureText}>
+          <span className={styles.sectionEyebrow}>UMA LISTA SÓ SUA</span>
+          <h2 id="titulo-favoritos">Viu, gostou, <em>salvou.</em></h2>
+          <p>Favorite os produtos que chamarem sua atenção e encontre tudo depois em um só lugar.</p>
+          <Link to="/favoritos" className={styles.featureCta}>Ver meus favoritos <span aria-hidden="true">↗</span></Link>
         </div>
-        <Link className={styles.bannerButton} to="/favoritos">Acessar favoritos <span aria-hidden="true">→</span></Link>
+        <div className={styles.featureSteps} aria-label="Como funciona">
+          <span><b>01</b> Explore o catálogo</span>
+          <span><b>02</b> Encontre seus preferidos</span>
+          <span><b>03</b> Salve para rever depois</span>
+        </div>
       </section>
     </div>
   );

@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import styles from './CardProduto.module.css';
 import { Produto } from '../models/Produto';
@@ -15,19 +14,14 @@ export default function CardProduto({ produto, onFavoritar, aoRemover, mostrarRe
 
   useEffect(() => {
     const favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
-    const jaFavoritado = favoritos.some((p: Produto) => p.id === produto.id);
-    setFavoritado(jaFavoritado);
+    setFavoritado(favoritos.some((p: Produto) => p.id === produto.id));
   }, [produto.id]);
 
   const alternarFavorito = () => {
     const favoritos = JSON.parse(localStorage.getItem('favoritos') || '[]');
-    let novosFavoritos;
-
-    if (favoritado) {
-      novosFavoritos = favoritos.filter((p: Produto) => p.id !== produto.id);
-    } else {
-      novosFavoritos = [...favoritos, produto];
-    }
+    const novosFavoritos = favoritado
+      ? favoritos.filter((p: Produto) => p.id !== produto.id)
+      : [...favoritos, produto];
 
     localStorage.setItem('favoritos', JSON.stringify(novosFavoritos));
     setFavoritado(!favoritado);
@@ -35,18 +29,27 @@ export default function CardProduto({ produto, onFavoritar, aoRemover, mostrarRe
   };
 
   return (
-    <div className={styles.card}>
-      <img src={produto.imagem} alt={produto.nome} />
-      <h3>{produto.nome}</h3>
-      <p>{produto.marca}</p>
-      <p>R$ {produto.preco.toFixed(2)}</p>
-      {mostrarRemover ? (
-        <button onClick={aoRemover} className={styles.remover}>💔 Remover</button>
-      ) : (
-        <button onClick={alternarFavorito}>
-          {favoritado ? '❤️ Remover' : '🤍 Favoritar'}
+    <article className={styles.card}>
+      <div className={styles.imageWrap}>
+        <img src={produto.imagem} alt={produto.nome} loading="lazy" decoding="async" />
+        <button
+          type="button"
+          className={styles.favoriteButton + (favoritado ? ' ' + styles.selected : '')}
+          onClick={mostrarRemover ? aoRemover : alternarFavorito}
+          aria-label={mostrarRemover ? 'Remover ' + produto.nome + ' dos favoritos' : (favoritado ? 'Remover ' : 'Adicionar ') + produto.nome + (favoritado ? ' dos favoritos' : ' aos favoritos')}
+          title={mostrarRemover || favoritado ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+        >
+          <span aria-hidden="true">{mostrarRemover || favoritado ? '♥' : '♡'}</span>
         </button>
-      )}
-    </div>
+      </div>
+      <div className={styles.details}>
+        <span className={styles.brand}>{produto.marca}</span>
+        <h3 title={produto.nome}>{produto.nome}</h3>
+        <div className={styles.bottomRow}>
+          <strong className={styles.price}>R$ {produto.preco.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong>
+          <span className={styles.category}>{produto.categoria}</span>
+        </div>
+      </div>
+    </article>
   );
 }
